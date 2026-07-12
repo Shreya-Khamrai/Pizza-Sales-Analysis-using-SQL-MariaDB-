@@ -1,0 +1,186 @@
+
+MariaDB [(none)]> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.004 sec)
+
+MariaDB [(none)]> CREATE DATABASE pizza_sales;
+Query OK, 1 row affected (0.005 sec)
+
+SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| pizza_sales        |
+| sys                |
++--------------------+
+5 rows in set (0.027 sec)
+
+MariaDB [(none)]> USE pizza_sales;
+Database changed
+MariaDB [pizza_sales]> SELECT DATABASE();
++-------------+
+| DATABASE()  |
++-------------+
+| pizza_sales |
++-------------+
+1 row in set (0.003 sec)
+
+MariaDB [pizza_sales]> CREATE TABLE pizza_sales( pizza_id INT, order_id INT, pizza_name_id VARCHAR(100), quantity INT, order_date DATE, order_time TIME, unit_price DECIMAL(10,2), total_price DECIMAL(10,2), pizza_size VARCHAR(10), pizza_cate
+gory VARCHAR(80), pizza_ingredients TEXT, pizza_name VARCHAR(100) );
+Query OK, 0 rows affected (0.019 sec)
+
+MariaDB [pizza_sales]> SHOW TABLES;
++-----------------------+
+| Tables_in_pizza_sales |
++-----------------------+
+| pizza_sales           |
++-----------------------+
+1 row in set (0.001 sec)
+
+MariaDB [pizza_sales]> SELECT * FROM pizza_sales LIMIT 5;
+Empty set (0.011 sec)
+
+MariaDB [pizza_sales]> DESCRIBE pizza_sales;
++-------------------+---------------+------+-----+---------+-------+
+| Field             | Type          | Null | Key | Default | Extra |
++-------------------+---------------+------+-----+---------+-------+
+| pizza_id          | int(11)       | YES  |     | NULL    |       |
+| order_id          | int(11)       | YES  |     | NULL    |       |
+| pizza_name_id     | varchar(100)  | YES  |     | NULL    |       |
+| quantity          | int(11)       | YES  |     | NULL    |       |
+| order_date        | date          | YES  |     | NULL    |       |
+| order_time        | time          | YES  |     | NULL    |       |
+| unit_price        | decimal(10,2) | YES  |     | NULL    |       |
+| total_price       | decimal(10,2) | YES  |     | NULL    |       |
+| pizza_size        | varchar(10)   | YES  |     | NULL    |       |
+| pizza_category    | varchar(80)   | YES  |     | NULL    |       |
+| pizza_ingredients | text          | YES  |     | NULL    |       |
+| pizza_name        | varchar(100)  | YES  |     | NULL    |       |
++-------------------+---------------+------+-----+---------+-------+
+12 rows in set (0.004 sec)
+
+MariaDB [pizza_sales]> LOAD DATA LOCAL INFILE '/mnt/c/Users/PC/OneDrive/Desktop/my documents/Project/pizza_sales.csv'
+    -> INTO TABLE pizza_sales
+    -> FIELDS TERMINATED BY ','
+    -> ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\r\n'
+    -> IGNORE 1 ROWS
+    -> (
+    -> pizza_id,
+    -> order_id,
+    -> pizza_name_id,
+    -> quantity,
+    -> @order_date,
+    -> order_time,
+    -> unit_price,
+    -> total_price,
+    -> pizza_size,
+    -> pizza_category,
+    -> pizza_ingredients,
+    -> pizza_name
+    -> )
+    -> SET order_date = STR_TO_DATE(@order_date,'%d-%m-%Y');
+Query OK, 48620 rows affected (1.203 sec)
+Records: 48620  Deleted: 0  Skipped: 0  Warnings: 0
+
+SELECT * FROM pizza_sales LIMIT 5;
++----------+----------+---------------+----------+------------+------------+------------+-------------+------------+----------------+----------------------------------------------------------------------------------------------+---------------------------+
+| pizza_id | order_id | pizza_name_id | quantity | order_date | order_time | unit_price | total_price | pizza_size | pizza_category | pizza_ingredients                                                                            | pizza_name                |
++----------+----------+---------------+----------+------------+------------+------------+-------------+------------+----------------+----------------------------------------------------------------------------------------------+---------------------------+
+|        1 |        1 | hawaiian_m    |        1 | 2015-01-01 | 11:38:36   |      13.25 |       13.25 | M          | Classic        | Sliced Ham, Pineapple, Mozzarella Cheese                                                     | The Hawaiian Pizza        |
+|        2 |        2 | classic_dlx_m |        1 | 2015-01-01 | 11:57:40   |      16.00 |       16.00 | M          | Classic        | Pepperoni, Mushrooms, Red Onions, Red Peppers, Bacon                                         | The Classic Deluxe Pizza  |
+|        3 |        2 | five_cheese_l |        1 | 2015-01-01 | 11:57:40   |      18.50 |       18.50 | L          | Veggie         | Mozzarella Cheese, Provolone Cheese, Smoked Gouda Cheese, Romano Cheese, Blue Cheese, Garlic | The Five Cheese Pizza     |
+|        4 |        2 | ital_supr_l   |        1 | 2015-01-01 | 11:57:40   |      20.75 |       20.75 | L          | Supreme        | Calabrese Salami, Capocollo, Tomatoes, Red Onions, Green Olives, Garlic                      | The Italian Supreme Pizza |
+|        5 |        2 | mexicana_m    |        1 | 2015-01-01 | 11:57:40   |      16.00 |       16.00 | M          | Veggie         | Tomatoes, Red Peppers, Jalapeno Peppers, Red Onions, Cilantro, Corn, Chipotle Sauce, Garlic  | The Mexicana Pizza        |
++----------+----------+---------------+----------+------------+------------+------------+-------------+------------+----------------+----------------------------------------------------------------------------------------------+---------------------------+
+5 rows in set (0.003 sec)
+
+MariaDB [pizza_sales]> SELECT order_date FROM pizza_sales LIMIT 5;
++------------+
+| order_date |
++------------+
+| 2015-01-01 |
+| 2015-01-01 |
+| 2015-01-01 |
+| 2015-01-01 |
+| 2015-01-01 |
++------------+
+5 rows in set (0.001 sec)
+
+MariaDB [pizza_sales]> UPDATE pizza_sales SET pizza_name = TRIM(TRAILING '\r' FROM pizza_name);
+Query OK, 48620 rows affected (0.313 sec)
+Rows matched: 48620  Changed: 46006  Warnings: 0
+
+MariaDB [pizza_sales]> SELECT HEX(pizza_name) FROM pizza_sales WHERE pizza_id = 2;
++--------------------------------------------------+
+| HEX(pizza_name)                                  |
++--------------------------------------------------+
+| 54686520436C61737369632044656C7578652050697A7A61 |
++--------------------------------------------------+
+1 row in set (0.017 sec)
+
+MariaDB [pizza_sales]>  SELECT pizza_name, LENGTH(pizza_name) FROM pizza_sales LIMIT 5;
++---------------------------+--------------------+
+| pizza_name                | LENGTH(pizza_name) |
++---------------------------+--------------------+
+| The Hawaiian Pizza        |                 18 |
+| The Classic Deluxe Pizza  |                 24 |
+| The Five Cheese Pizza     |                 21 |
+| The Italian Supreme Pizza |                 25 |
+| The Mexicana Pizza        |                 18 |
++---------------------------+--------------------+
+5 rows in set (0.001 sec)
+
+MariaDB [pizza_sales]> SHOW WARNINGS LIMIT 20;
+Empty set (0.001 sec)
+
+MariaDB [pizza_sales]> SELECT COUNT(*) FROM pizza_sales;
++----------+
+| COUNT(*) |
++----------+
+|    48620 |
++----------+
+1 row in set (0.037 sec)
+
+MariaDB [pizza_sales]> SELECT order_date, order_time FROM pizza_sales LIMIT 10;
++------------+------------+
+| order_date | order_time |
++------------+------------+
+| 2015-01-01 | 11:38:36   |
+| 2015-01-01 | 11:57:40   |
+| 2015-01-01 | 11:57:40   |
+| 2015-01-01 | 11:57:40   |
+| 2015-01-01 | 11:57:40   |
+| 2015-01-01 | 11:57:40   |
+| 2015-01-01 | 12:12:28   |
+| 2015-01-01 | 12:12:28   |
+| 2015-01-01 | 12:16:31   |
+| 2015-01-01 | 12:21:30   |
++------------+------------+
+10 rows in set (0.002 sec)
+
+MariaDB [pizza_sales]> SELECT COUNT(*) FROM pizza_sales WHERE order_date IS NULL OR order_date = '0000-00-00';
++----------+
+| COUNT(*) |
++----------+
+|        0 |
++----------+
+1 row in set (0.027 sec)
+
+MariaDB [pizza_sales]> SELECT COUNT(*) AS total_records FROM pizza_sales;
++---------------+
+| total_records |
++---------------+
+|         48620 |
++---------------+
+1 row in set (0.153 sec)
